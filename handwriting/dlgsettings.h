@@ -22,18 +22,16 @@ private slots:
 
 
 
-signals:
-    void kInkChanged(QColor color,int thickness);  // 新增信号，用于传递颜色信息
 
+signals:
+    void kInkChanged(QColor color,int thickness);  // 改变墨迹的颜色和粗细
+    void fontSizeChanged(int fontSize); //改变候选字体颜色
 
 
 private:
     Ui::DlgSettings *ui;
 
-    // 默认设置
-    QColor defaultColor = Qt::black;
-    int defaultThickness = 2;
-    int defaultFontSize = 12;
+
 
     void loadSettings(); // 加载当前设置
     void resetSettings(); // 恢复默认设置

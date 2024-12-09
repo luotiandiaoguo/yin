@@ -1,7 +1,7 @@
 #include "DlgSettings.h"
 #include "ui_DlgSettings.h"
 #include "mainwindow.h"
-
+#include "qtimer.h"
 DlgSettings::DlgSettings(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::DlgSettings)
@@ -39,12 +39,13 @@ DlgSettings::~DlgSettings()
     delete ui;
 }
 
+//加载默认设置
 void DlgSettings::loadSettings()
 {
     // 加载默认或当前设置
     ui->radioButtonBlack->setChecked(true); // 默认黑色
-    ui->thicknessComboBox->setCurrentIndex(defaultThickness - 1); // 默认粗细
-    ui->fontSizeComboBox->setCurrentText(QString::number(defaultFontSize)); // 默认字号
+    ui->thicknessComboBox->setCurrentIndex(1); // 默认粗细
+    ui->fontSizeComboBox->setCurrentIndex(1); // 默认字号
 
 
 }
@@ -52,9 +53,9 @@ void DlgSettings::loadSettings()
 void DlgSettings::resetSettings()
 {
     // 恢复默认设置
-    ui->radioButtonBlack->setChecked(true);
-    ui->thicknessComboBox->setCurrentIndex(1);
-    ui->fontSizeComboBox->setCurrentText("12");
+    ui->radioButtonBlack->setChecked(true);  //默认墨迹黑色
+    ui->thicknessComboBox->setCurrentIndex(1); //默认墨迹粗细为中
+    ui->fontSizeComboBox->setCurrentIndex(1); //默认候选字体大小为中等
 }
 
 void DlgSettings::on_resetButton_clicked()
@@ -95,9 +96,28 @@ void DlgSettings::on_confirmButton_clicked()
     // 发出信号，将颜色传递出去
     emit kInkChanged(selectedColor, thickness);
 
+
+    // 获取字体大小
+    int fontSizeIndex = ui->fontSizeComboBox->currentIndex();
+    // 根据索引设置字体粗细
+    int fontSize = 14;  // 默认中等粗细
+    if (fontSizeIndex == 0) {
+        fontSize = 10;  // 细
+    } else if (fontSizeIndex == 1) {
+        fontSize = 14;  // 中
+    } else if (fontSizeIndex == 2) {
+        fontSize = 20;  // 粗
+    }
+    // 发出字体大小改变信号
+    emit fontSizeChanged(fontSize);
+
+
     // 关闭设置对话框
     accept();
+
 }
+
+
 
 
 

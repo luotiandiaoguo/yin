@@ -10,6 +10,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = handwriting
 TEMPLATE = app
+DESTDIR = D:/WPS/Class/LessonsCode/yinxiang/LessonCode/week06/practice/
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings
@@ -27,12 +28,18 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     dlgsettings.cpp \
-    handsinput.cpp
+    handsinput.cpp \
+    englishwidget.cpp \
+    numberwidget.cpp \
+    punctuationwidget.cpp
 
 HEADERS += \
         mainwindow.h \
     dlgsettings.h \
-    handsinput.h
+    handsinput.h \
+    englishwidget.h \
+    numberwidget.h \
+    punctuationwidget.h
 
 FORMS += \
         mainwindow.ui \

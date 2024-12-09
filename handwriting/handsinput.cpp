@@ -75,8 +75,8 @@ void handsInput::inputInit(HWND hwnd)
 
     recoguide.rectWritingBox = rect;
     recoguide.rectDrawnBox = rect;
-    recoguide.cRows = 1;//不要过大
-    recoguide.cColumns = 1;
+    recoguide.cRows = 3;//不要过大
+    recoguide.cColumns = 3;
     recoguide.midline = -1;
     RecognizerGuide->put_GuideData(recoguide);
     kIInkRecoContext->putref_Guide(RecognizerGuide);
@@ -197,7 +197,7 @@ void handsInput::clear()
     //Invalidate();
 }
 
-// handsInput.cpp 中实现
+// 设置墨迹的颜色
 void handsInput::setInkColor(const QColor &color)
 {
     IInkDrawingAttributes* p = NULL;
