@@ -1,5 +1,5 @@
 #include "handsinput.h"
-#include <QAxObject>
+#include <ActiveQT/QAxObject>
 #include <QDebug>
 
 handsInput::handsInput(QWidget *parent) : QWidget(parent)
@@ -54,7 +54,6 @@ void handsInput::inputInit(HWND hwnd)
     }
 
 
-
     // 打开墨迹输入的开关
     hr = kIInkCollector->put_Enabled(VARIANT_TRUE);
     if (FAILED(hr))
@@ -68,9 +67,9 @@ void handsInput::inputInit(HWND hwnd)
         return;
     InkRecoGuide recoguide;
     RECT rect;
-    rect.bottom = 2;//不能为1
+    rect.bottom = 20;//不能为1
     rect.left = 0;
-    rect.right = 2;//不能为1
+    rect.right = 20;//不能为1
     rect.top = 0;
 
     recoguide.rectWritingBox = rect;
@@ -99,6 +98,7 @@ void handsInput::RegDataEx(InPutRltS &Rlts)
         return;
     }
 
+
     strokeHistory.push(pIInkStrokes);  // 保存到栈中
 
     // 将笔触收集器传递给识别器
@@ -109,18 +109,20 @@ void handsInput::RegDataEx(InPutRltS &Rlts)
         return;
     }
 
+
+
     // 识别
     IInkRecognitionResult* pIInkRecoResult = NULL;
     InkRecognitionStatus RecognitionStatus = IRS_NoError;
-
     hr = kIInkRecoContext->Recognize(&RecognitionStatus, &pIInkRecoResult);
-    if (FAILED(hr) || pIInkRecoResult == NULL) {
+    if (FAILED(hr)) {
+        qDebug() << "Recognition failed, HRESULT: " << hr << " Status: " << RecognitionStatus;
         pIInkStrokes->Release();
-        qDebug() << "Recognition failed";
         return;
     }
 
-    // 获取可能的所有识别结果
+
+    // 获取可能的所有识别结果,识别上下文
     IInkRecognitionAlternates* spIInkRecoAlternates = NULL;
     hr = pIInkRecoResult->AlternatesFromSelection(0, -1, 10, &spIInkRecoAlternates);
     pIInkRecoResult->Release();
@@ -224,29 +226,66 @@ void handsInput::setInkThickness(int thickness)
 
 
 // 退一笔功能实现
-void handsInput::undoLastStroke()
-{
-    if (strokeHistory.empty()) {
-        qDebug() << "No strokes to undo";
-        return;
+//void handsInput::undoLastStroke()
+//{
+//    if (strokeHistory.empty()) {
+//        qDebug() << "No strokes to undo";
+//        return;
+//    }
+
+//    // 获取栈顶的笔画
+//    IInkStrokes* pIInkStrokes = strokeHistory.top();
+//    strokeHistory.pop();  // 移除栈顶的笔画
+
+
+
+//    // 删除最后一笔
+//    HRESULT hr = kIInkDisp->DeleteStrokes(pIInkStrokes);
+//    if (FAILED(hr)) {
+//        qDebug() << "Failed to delete strokes";
+//        return;
+//    }
+
+//    // 重新清空手写区域并更新显示
+//    clear();
+//    pIInkStrokes->Release();  // 释放资源
+//}
+
+void handsInput::undoLastStroke() {
+    qDebug() << "调用了 undoLastStroke 方法";
+    IInkStrokes* pIInkStrokes = NULL;
+    HRESULT hr = kIInkDisp->get_Strokes(&pIInkStrokes);
+    if (SUCCEEDED(hr) && pIInkStrokes) {
+        long count = 0;
+        hr = pIInkStrokes->get_Count(&count);
+        qDebug() << "笔画数量:" << count;
+        if (SUCCEEDED(hr) && count > 0) {
+            IInkStrokeDisp* lastStroke = NULL;
+            hr = pIInkStrokes->Item(count - 1, &lastStroke);
+            if (SUCCEEDED(hr) && lastStroke) {
+                hr = kIInkDisp->DeleteStroke(lastStroke);
+                if (FAILED(hr)) {
+                    qDebug() << "删除笔画失败，错误代码：" << hr;
+                }
+                else {
+                    qDebug() << "成功删除笔画。";
+                }
+                lastStroke->Release();
+            }
+            else {
+                qDebug() << "获取最后一个笔画失败，错误代码：" << hr;
+            }
+        }
+        else {
+            qDebug() << "没有找到笔画或获取笔画数量失败，错误代码：" << hr;
+        }
+        pIInkStrokes->Release();
+    }
+    else {
+        qDebug() << "获取笔画集合失败，错误代码：" << hr;
     }
 
-    // 获取栈顶的笔画
-    IInkStrokes* pIInkStrokes = strokeHistory.top();
-    strokeHistory.pop();  // 移除栈顶的笔画
+    InPutRltS tempRlt;
+    RegDataEx(tempRlt);
 
-
-
-    // 删除最后一笔
-    HRESULT hr = kIInkDisp->DeleteStrokes(pIInkStrokes);
-    if (FAILED(hr)) {
-        qDebug() << "Failed to delete strokes";
-        return;
-    }
-
-    // 重新清空手写区域并更新显示
-    clear();
-    pIInkStrokes->Release();  // 释放资源
 }
-
-

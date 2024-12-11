@@ -8,9 +8,13 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    WId hShowLong = ui->labelLong->winId();
+    inputs.inputInit((HWND)hShowLong);
 
     WId hShow = ui->label->winId();
     inputs.inputInit((HWND)hShow);
+
+
 
     autoinput = false;
     ui->textEdit->setPlaceholderText("姓名");
@@ -18,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
     // 连接设置按钮的点击信号到槽函数
     connect(ui->settingsButton, &QPushButton::clicked, this, &MainWindow::on_settingsButton_clicked);
     // 退一笔连接信号与槽函数
-    connect(ui->Btn_undo, &QPushButton::clicked, this, &MainWindow::on_Btn_undo_clicked);
+    connect(ui->Btn_undo, &QPushButton::clicked, this, &MainWindow::on_Btn_undo_Clicked);
 
 
     // 获取 QStackedWidget 和按钮
@@ -27,7 +31,8 @@ MainWindow::MainWindow(QWidget *parent)
     // 连接按钮与槽函数
     connect(ui->chineseButton, &QPushButton::clicked, this, [=]() {
         // 点击中文按钮时，隐藏 QStackedWidget，并显示 MainWindow 的默认内容
-        stackedWidget->hide();  // 隐藏 QStackedWidget
+        stackedWidget->show();  // 隐藏 QStackedWidget
+        stackedWidget->setCurrentWidget(ui->shortWordsPage);  // 切换到短句页面
         // 其他操作可以设置为默认显示内容，比如清空某些输入框等
     });
 
@@ -49,11 +54,50 @@ MainWindow::MainWindow(QWidget *parent)
         stackedWidget->setCurrentWidget(ui->punctuationPage);  // 切换到标点页面
     });
 
+    //长短句切换链接
+    connect(ui->shortWorldsPushButton, &QPushButton::clicked, this, [=]() {
+
+        stackedWidget->show();  // 显示 stackedWidgetWrite
+        stackedWidget->setCurrentWidget(ui->shortWordsPage);  // 切换到短句页面
+    });
+    connect(ui->longWorldsPushButton, &QPushButton::clicked, this, [=]() {
+        // 点击英文按钮时，显示 QStackedWidget，并切换到英文页面
+        stackedWidget->show();  // 显示 QStackedWidget
+        stackedWidget->setCurrentWidget(ui->longWordsPage);  // 切换到长句页面
+    });
+
     // 默认情况下隐藏 QStackedWidget
-    stackedWidget->hide();
+//    stackedWidget->hide();
+
+    //标点，数字，字母链接
+    specialButtonConnections();
+
+
+//    QString style = R"(
+//            #labelLong{
+//                background-color: white;
+//                border: 1px solid lightgray;
+//                background-image:
+//                    linear-gradient(to bottom, lightgray 1px, transparent 1px),
+//                    linear-gradient(to right, lightgray 1px, transparent 1px);
+//                background-size: 20px 20px;
+//                background-repeat: repeat;
+//                padding: 10px;
+//            }
+//        )";
+//     setStyleSheet(style);
 
 
 
+}
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
+void MainWindow::specialButtonConnections()
+{
     // 创建 EnglishWidget 实例
     englishWidget = new EnglishWidget(this);
 
@@ -120,14 +164,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     // 连接 NumberWidget 的信号到主窗口的槽函数
     connect(punctuationWidget, &PunctuationWidget::punctuationClicked, this, &MainWindow::onCharacterClicked);
-
-
 }
 
-MainWindow::~MainWindow()
-{
-    delete ui;
-}
 void MainWindow::on_kInkChanged(QColor color,int thickness)
 {
 
@@ -207,32 +245,36 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *e)
 //    qDebug() << tempRlt.size();
 
     // 填充 9 个候选词按钮
+    // 确保候选字按钮被正确填充
     for (int i = 0; i < 9; i++) {
         if (i < tempRlt.size()) {
             QString word = QString::fromUtf8(QByteArray(tempRlt[i].rlt));
-            // 根据 i 设置不同的按钮文本
-            if (i == 0) ui->Btn_word1->setText(word);
-            if (i == 1) ui->Btn_word2->setText(word);
-            if (i == 2) ui->Btn_word3->setText(word);
-            if (i == 3) ui->Btn_word4->setText(word);
-            if (i == 4) ui->Btn_word5->setText(word);
-            if (i == 5) ui->Btn_word6->setText(word);
-            if (i == 6) ui->Btn_word7->setText(word);
-            if (i == 7) ui->Btn_word8->setText(word);
-            if (i == 8) ui->Btn_word9->setText(word);
+            switch(i) {
+                case 0: ui->Btn_word1->setText(word); break;
+                case 1: ui->Btn_word2->setText(word); break;
+                case 2: ui->Btn_word3->setText(word); break;
+                case 3: ui->Btn_word4->setText(word); break;
+                case 4: ui->Btn_word5->setText(word); break;
+                case 5: ui->Btn_word6->setText(word); break;
+                case 6: ui->Btn_word7->setText(word); break;
+                case 7: ui->Btn_word8->setText(word); break;
+                case 8: ui->Btn_word9->setText(word); break;
+            }
         } else {
-            // 如果候选词数量不够 9 个，清空剩余按钮
-            if (i == 0) ui->Btn_word1->setText("");
-            if (i == 1) ui->Btn_word2->setText("");
-            if (i == 2) ui->Btn_word3->setText("");
-            if (i == 3) ui->Btn_word4->setText("");
-            if (i == 4) ui->Btn_word5->setText("");
-            if (i == 5) ui->Btn_word6->setText("");
-            if (i == 6) ui->Btn_word7->setText("");
-            if (i == 7) ui->Btn_word8->setText("");
-            if (i == 8) ui->Btn_word9->setText("");
+            switch(i) {
+                case 0: ui->Btn_word1->setText(""); break;
+                case 1: ui->Btn_word2->setText(""); break;
+                case 2: ui->Btn_word3->setText(""); break;
+                case 3: ui->Btn_word4->setText(""); break;
+                case 4: ui->Btn_word5->setText(""); break;
+                case 5: ui->Btn_word6->setText(""); break;
+                case 6: ui->Btn_word7->setText(""); break;
+                case 7: ui->Btn_word8->setText(""); break;
+                case 8: ui->Btn_word9->setText(""); break;
+            }
         }
     }
+
 }
 
 
@@ -306,6 +348,7 @@ void MainWindow::on_Btn_clear_clicked()
     ui->textEdit->setFocus();//获取焦点
     inputs.clear();// Only 删除笔触
     ui->label->clear();
+    ui->labelLong->clear();
 
     ui->Btn_word1->setText("");
     ui->Btn_word2->setText("");
@@ -328,10 +371,25 @@ void MainWindow::onCharacterClicked(const QString &character)
     ui->textEdit->insertPlainText(character);
 }
 
-
-void MainWindow::on_Btn_undo_clicked()
+//长短句切换
+void MainWindow::stackedWidgetWrite()
 {
-    qDebug() << "退一笔按钮被点击了";  // 调用handsInput类中的退一笔方法
+    // 判断触发的按钮并切换页面
+    QObject* senderObj = sender(); // 获取触发该槽函数的对象
+    if (senderObj == ui->shortWorldsPushButton)
+    {
+        ui->stackedWidget->setCurrentWidget(ui->shortWordsPage); // 切换到 pageShort
+    }
+    else if (senderObj == ui->longWorldsPushButton)
+    {
+        ui->stackedWidget->setCurrentWidget(ui->longWordsPage); // 切换到 pageLong
+    }
+}
+
+void MainWindow::on_Btn_undo_Clicked()
+{
+    // 调用handsInput类中的退一笔方法
+    //qDebug() << "退一笔按钮被点击了";
     inputs.undoLastStroke();  // 调用 handsInput 类中的 undoLastStroke 方法
 
     // 清除候选词按钮的文本

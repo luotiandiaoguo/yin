@@ -35,7 +35,7 @@ public:
     QTimer *timer;      //自动输入定时器
     bool autoinput;     //是否自动输入
     void input_word(QString new_word);  //输入文字
-    ////////////
+
 protected:
     void mouseReleaseEvent(QMouseEvent *e);
 private slots:
@@ -57,12 +57,12 @@ private slots:
 
 private slots:
     void on_settingsButton_clicked(); // 设置按钮槽函数
-    void on_Btn_undo_clicked();  // 声明退一笔按钮的槽函数
+    void on_Btn_undo_Clicked();  // 声明退一笔按钮的槽函数
     void onCharacterClicked(const QString &character);  // 新增槽函数，接收字符
 public slots:
     void on_kInkChanged(QColor color, int thickness); //改变墨迹颜色和粗细
     void updateButtonFontSize(int fontSize); //改变候选字体的大小
-
+    void stackedWidgetWrite(); //长短句切换
 
 
 
@@ -71,6 +71,7 @@ private:
     EnglishWidget *englishWidget;  // 添加 EnglishWidget 指针
     NumberWidget *numberWidget;  // 添加 NumberWidget 指针
     PunctuationWidget *punctuationWidget; //添加NumberWidget 指针
+    void specialButtonConnections();
 
 };
 #endif // MAINWINDOW_H
